@@ -1,40 +1,35 @@
 package app.DAOs;
 
-import app.DAOs.PackageDAO;
-import app.DeliveryStatus;
+import app.entities.DeliveryStatus;
 import app.entities.Package;
 import app.persistence.HibernateConfig;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class PackageDAOTest
-{
+public class PackageDAOTest {
 
     private static EntityManagerFactory emfTest;
     private static PackageDAO packageDAO;
 
     @BeforeAll
-    static void setUpAll()
-    {
-        emfTest = HibernateConfig.getEntityManagerFactory();
-        packageDAO = new PackageDAO();
+    static void setUpAll() {
+        HibernateConfig.setTestMode(true);
+        emfTest = HibernateConfig.getEntityManagerFactoryForTest();
+        packageDAO = new PackageDAO(emfTest);
     }
 
     @AfterAll
-    public static void tearDown()
-    {
+    public static void tearDown() {
         emfTest.close();
     }
 
     @Test
-    public void testCreatePackage()
-    {
-        //new package
-        String trackingNumber = "ABC125";
+    public void testCreatePackage() {
+        // Create and persist a new package
+        String trackingNumber = "ABC123";
         Package pkg = new Package();
         pkg.setTrackingNumber(trackingNumber);
         pkg.setSenderName("John Doe");
@@ -43,10 +38,9 @@ public class PackageDAOTest
 
         packageDAO.persistPackage(pkg);
 
-        //check
+        // Retrieve and verify the package
         Package retrievedPackage = packageDAO.getPackageByTrackingNumber(trackingNumber);
 
-        //assert
         assertNotNull(retrievedPackage);
         assertEquals(trackingNumber, retrievedPackage.getTrackingNumber());
         assertEquals("John Doe", retrievedPackage.getSenderName());
@@ -55,10 +49,9 @@ public class PackageDAOTest
     }
 
     @Test
-    public void testUpdateDeliveryStatus()
-    {
-        //new package
-        String trackingNumber = "XYZ787";
+    public void testUpdateDeliveryStatus() {
+        // Create and persist a new package
+        String trackingNumber = "XYZ789";
         Package pkg = new Package();
         pkg.setTrackingNumber(trackingNumber);
         pkg.setSenderName("Alice");
@@ -67,19 +60,18 @@ public class PackageDAOTest
 
         packageDAO.persistPackage(pkg);
 
-        //update delivery status
+        // Update the delivery status
         packageDAO.updateDeliveryStatus(trackingNumber, DeliveryStatus.IN_TRANSIT);
 
         Package updatedPackage = packageDAO.getPackageByTrackingNumber(trackingNumber);
-        //check updated status
+
         assertNotNull(updatedPackage);
         assertEquals(DeliveryStatus.IN_TRANSIT, updatedPackage.getDeliveryStatus());
     }
 
     @Test
-    public void testRemovePackage()
-    {
-        //new package
+    public void testRemovePackage() {
+        // Create and persist a new package
         Package pkg = new Package();
         pkg.setTrackingNumber("DELETE001");
         pkg.setSenderName("Charles");
@@ -88,15 +80,12 @@ public class PackageDAOTest
 
         packageDAO.persistPackage(pkg);
 
-        // Remove package
+        // Remove the package
         packageDAO.removePackage("DELETE001");
 
-        //check if removed
-        Exception exception = assertThrows(Exception.class, () ->
-        {
-            packageDAO.getPackageByTrackingNumber("DELETE001");
-        });
+        // Verify that the package has been removed
+        Package removedPackage = packageDAO.getPackageByTrackingNumber("DELETE001");
 
-        assertNotNull(exception);
+        assertNull(removedPackage);
     }
 }
