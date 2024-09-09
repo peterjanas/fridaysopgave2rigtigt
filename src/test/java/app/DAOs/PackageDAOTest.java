@@ -1,7 +1,7 @@
 package app.DAOs;
 
-import app.entities.DeliveryStatus;
 import app.entities.Package;
+import app.entities.Package.DeliveryStatus;
 import app.persistence.HibernateConfig;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.*;
@@ -11,15 +11,22 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PackageDAOTest {
 
+
     private static EntityManagerFactory emfTest;
     private static PackageDAO packageDAO;
+   // private static LocationDAO locationDAO;
+   // private static ShipmentDAO shipmentDAO;
 
     @BeforeAll
     static void setUpAll() {
         HibernateConfig.setTestMode(true);
         emfTest = HibernateConfig.getEntityManagerFactoryForTest();
         packageDAO = new PackageDAO(emfTest);
+    //    locationDAO = new LocationDAO(emfTest);
+      //  shipmentDAO = new ShipmentDAO(emfTest);
+
     }
+
 
     @AfterAll
     public static void tearDown() {
@@ -88,4 +95,6 @@ public class PackageDAOTest {
 
         assertNull(removedPackage);
     }
+
+
 }

@@ -1,6 +1,6 @@
 package app.DAOs;
 
-import app.entities.DeliveryStatus;
+
 import app.entities.Package;
 import app.persistence.HibernateConfig;
 import jakarta.persistence.EntityManager;
@@ -10,14 +10,12 @@ import jakarta.persistence.TypedQuery;
 
 public class PackageDAO
 {
-    private EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
+    private EntityManagerFactory emf;
 
-    // Default constructor for normal use
     public PackageDAO() {
         this.emf = HibernateConfig.getEntityManagerFactory();
     }
 
-    // Constructor for testing
     public PackageDAO(EntityManagerFactory emf) {
         this.emf = emf;
     }
@@ -25,7 +23,6 @@ public class PackageDAO
 
     public void persistPackage(Package pkg)
     {
-
         try (EntityManager em = emf.createEntityManager())
         {
             em.getTransaction().begin();
@@ -48,7 +45,7 @@ public class PackageDAO
         }
     }
 
-    public void updateDeliveryStatus(String trackingNumber, DeliveryStatus status)
+    public void updateDeliveryStatus(String trackingNumber, Package.DeliveryStatus status)
     {
         try (EntityManager em = emf.createEntityManager())
         {

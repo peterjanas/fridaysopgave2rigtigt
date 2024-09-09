@@ -8,6 +8,8 @@ import lombok.Setter;
 
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -16,7 +18,7 @@ public class Package
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Column(nullable = false, unique = true)
     private String trackingNumber;
@@ -35,11 +37,34 @@ public class Package
     @Column(nullable = false)
     private LocalDateTime lastUpdated;
 
+    @OneToMany(mappedBy = "pkg", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Shipment> shipments;
+
     @PrePersist
-    @PreUpdate
-    public void updateTimestamp()
+    protected void onCreate()
     {
         lastUpdated = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate()
+    {
+        lastUpdated = LocalDateTime.now();
+    }
+
+    public enum DeliveryStatus
+    {
+        PENDING,
+        IN_TRANSIT,
+        DELIVERED
+    }
+
+    public Package(String trackingNumber, String senderName, String receiverName, DeliveryStatus deliveryStatus)
+    {
+        this.trackingNumber = trackingNumber;
+        this.senderName = senderName;
+        this.receiverName = receiverName;
+        this.deliveryStatus = deliveryStatus;
     }
 }
 
